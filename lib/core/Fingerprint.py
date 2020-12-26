@@ -37,7 +37,7 @@ class Fingerprint(object):
                     # 先提取ip
                     lines = json.loads(line)
                     ip = lines['ip']
-                    print(ip)
+                    # print(ip)
                     data = lines['data']
                     # 查该ip设备类型
                     for e in eq.keys():   

@@ -17,7 +17,7 @@ class pretreament(object):
                     # 先提取ip
                     lines = json.loads(line)
                     ip = lines['ip']
-                    print(ip)
+                    # print(ip)
                     data = str(lines['data'])
 
                     # 对数据进行处理
