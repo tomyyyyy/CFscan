@@ -2,6 +2,7 @@ import nltk
 import re
 import json
 import os
+from tqdm import tqdm
 
 
 class pretreament(object):
@@ -10,7 +11,7 @@ class pretreament(object):
 
 
         with open(F"{self.script_path}/json/zgrab2.json", 'r',  encoding = 'utf-8') as f:
-            for line in f.readlines():
+            for line in tqdm(f.readlines()):
                 line = line.strip()   # 使用strip函数去除空行
                 if len(line) != 0:
 
@@ -19,6 +20,7 @@ class pretreament(object):
                     ip = lines['ip']
                     # print(ip)
                     data = str(lines['data'])
+
 
                     # 对数据进行处理
                     data = re.sub(r'\\[n|r|t|v|f|s|S|cx]','', data)     # 删除不可打印字符

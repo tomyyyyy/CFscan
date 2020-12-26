@@ -1,5 +1,6 @@
 import openpyxl
 import json
+from tqdm import tqdm
 
 
 class Fingerprint(object):
@@ -29,7 +30,7 @@ class Fingerprint(object):
 
         # 指纹识别
         with open(F"{self.script_path}/json/fo.json", 'r',  encoding = 'utf-8') as f:
-            for line in f.readlines():
+            for line in tqdm(f.readlines()):
                 line = line.strip()   # 使用strip函数去除空行
                 if len(line) != 0:
 
