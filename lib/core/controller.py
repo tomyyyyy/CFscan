@@ -11,7 +11,7 @@ class Controller(object):
 
         if self.arguments.options.file != None:
             os.system(F"zmap -w {self.arguments.options.file} -p 80 -B 100M -o {self.script_path}/json/zmap_ip.txt")
-            os.system(F"zgrab --input-file={self.script_path}/json/zmap_ip.txt --output-file={self.script_path}/json/zgrab2.json --senders=1000   http")
+            os.system(F"zgrab2 --input-file={self.script_path}/json/zmap_ip.txt --output-file={self.script_path}/json/zgrab2.json --senders=1000   http")
 
             pre = pretreament(self.script_path)
             result = Fingerprint(self.script_path)
