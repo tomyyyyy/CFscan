@@ -51,17 +51,19 @@ class spider(object):
             consumer_thread.start()
 
         #将cve信息存储到表格之中
-        for index in range(self.thread_num):
-            excel_thread = threading.Thread(target=self.write_sql, args=(cve_info_queue, cur, year,))
-            excel_thread.setDaemon(True)
-            excel_thread.start()
+        excel_thread = threading.Thread(target=self.write_sql, args=(cve_info_queue, cur, year,))
+        excel_thread.setDaemon(True)
+        excel_thread.start()
 
         #控制线程进度，确定能够生产完毕
         producer_thread.join()
         url_queue.join()
         cve_info_queue.join()
-        print(F"{year}年cve信息全部写入成功")
+
+        self.conn.commit()
         self.conn.close()
+        print(F"{year}年cve信息全部写入成功")
+
 
     #将cve信息写入表格,然后删除内存数据
     def write_sql(self, cve_info_queue, cur, year):
@@ -70,8 +72,7 @@ class spider(object):
                     cve_info = cve_info_queue.get()
                     cve_info = [str(i) for i in cve_info]
                     cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
-                    self.conn.commit()
-
+                    
                     cve_info_queue.task_done()
                     del cve_info
                     gc.collect()
