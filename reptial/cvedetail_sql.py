@@ -36,8 +36,8 @@ class spider(object):
 
 
         #设置两个队列
-        url_queue = Queue(maxsize=self.thread_num*2)
-        cve_info_queue = Queue(maxsize=self.thread_num*2)
+        url_queue = Queue(maxsize=self.thread_num*3)
+        cve_info_queue = Queue(maxsize=self.thread_num*3)
 
         #生成cve详情url
         producer_thread = threading.Thread(target=self.producer, args=(url_queue, page_link))
@@ -98,10 +98,7 @@ class spider(object):
                 url = url_queue.get()
                 html = self.tyr_request(url, headers=self.headers)
                 #cve编号 
-                try:
-                    cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
-                except:
-                    print(url + "异常")
+                cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
                 #供应商 
                 try:
                     cve_vendor = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[1]/a/text()')[0]
@@ -129,10 +126,12 @@ class spider(object):
                 cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
-                self.lock.acquire()
-                cve_info_queue.put(cve_info)
                 url_queue.task_done()
-                self.lock.release()
+
+                while True:
+                    if not cve_info_queue.full():
+                        cve_info_queue.put(cve_info)
+                        break
 
                 #控制打印进度，防止不同进程同时打印
                 # self.lock.acquire()
