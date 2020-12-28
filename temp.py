@@ -2,7 +2,6 @@
 import gc
 import sys
 import requests
-import xlsxwriter
 from lxml import etree
 from tqdm import tqdm
 import threading
@@ -28,13 +27,6 @@ class spider(object):
         link = html.xpath('//*[@id="pagingb"]/a/@href')
         page_link = ["https://www.cvedetails.com" + i for i in link]
  
-
-        #创建表格并写入表头
-        workbook = xlsxwriter.Workbook(F'cve_details_{year}.xlsx')
-        worksheet = workbook.add_worksheet()
-        con = ["cve编号","漏洞类型","cve威胁等级","获得的权限","供应商","产品","型号"]
-        worksheet.write_row("A1",con)
-        row = 1
 
         #设置两个队列
         url_queue = Queue(maxsize=self.thread_num*3)
@@ -62,12 +54,10 @@ class spider(object):
         print(url_queue.qsize())
         cve_info_queue.join()
         print(cve_info_queue.qsize())
-        workbook.close()
-        sys.exit(0)
 
 
     #将cve信息写入表格,然后删除内存数据
-    def write_excel(self, cve_info_queue, worksheet, row):
+    def write_sql(self, cve_info_queue, worksheet, row):
         while True:
                 if  not cve_info_queue.empty():
                     cve_info = cve_info_queue.get()
@@ -129,23 +119,25 @@ class spider(object):
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
                 cve_info_queue.put(cve_info)
+                url_queue.task_done()
 
                 #控制打印进度，防止不同进程同时打印
                 self.lock.acquire()
                 print(cve_info)
                 self.lock.release()
 
-                url_queue.task_done()
+
             
     #产生cve详情url
     def producer(self, url_queue, page_link):  # 生产者
-        for url in tqdm(page_link):
+        for url in tqdm(page_link[15:]):
             html = self.tyr_request(url,headers=self.headers)
             for i in range(1, 51):
                 try:
                     url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
                     cve_url = "https://www.cvedetails.com" + url
                 except:
+                    print("页面生产完毕")
                     break
                 while True:
                     if not url_queue.full():
