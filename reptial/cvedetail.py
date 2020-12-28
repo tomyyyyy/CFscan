@@ -31,7 +31,7 @@ class spider(object):
         #创建表格并写入表头
         workbook = xlsxwriter.Workbook(F'cve_details_{year}.xlsx')
         worksheet = workbook.add_worksheet()
-        con = ["cve编号","cve漏洞类型","cve发布日期","cve更新时间","cve威胁等级","cve获得的权限","cve访问方式"]
+        con = ["cve编号","漏洞类型","发布日期","更新时间","cve威胁等级","获得的权限","访问方式","供应商","产品","型号"]
         worksheet.write_row("A1",con)
         row = 1
 
@@ -44,7 +44,7 @@ class spider(object):
             cve_info = self.cve_data(html)
             
             #将cve信息写入表格,然后删除内存数据
-            for info in tqdm(cve_info):
+            for info in cve_info:
                 worksheet.write_row(row, 0, info)
                 row += 1
                 del info
@@ -63,7 +63,27 @@ class spider(object):
             if not cve_id:
                 break
             cve_id = cve_id[0]
-            #cve漏洞类型  //*[@id="vulnslisttable"]/tbody/tr[2]/td[5]/font/font
+
+            #进入cve详情url
+            cve_url = "https://www.cvedetails.com" + html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*b) + ']/td[2]/a/@href')[0]
+            cve_html = etree.HTML(requests.get(cve_url,headers=self.headers).content)
+            #供应商 
+            try:
+                cve_vendor = cve_html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[1]/a/text()')[0]
+            except:
+                cve_vendor = " "
+            #产品
+            try:
+                cve_produce = cve_html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[2]/a/text()')[0]
+            except:
+                cve_produce = " "
+            #版本
+            try:
+                cve_produce_version = cve_html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[3]')[0].text.strip()
+            except:
+                cve_produce_version = " "
+            
+            #cve漏洞类型 
             cve_type = html.xpath('//*[@id="vulnslisttable"]/tr[' + str(2*b) +']/td[5]')[0].text.strip()
             #cve发布日期
             release_time = html.xpath('//*[@id="vulnslisttable"]/tr[' + str(2*b) +']/td[6]')[0].text
@@ -75,9 +95,10 @@ class spider(object):
             cve_authority = html.xpath('//*[@id="vulnslisttable"]/tr[' + str(2*b) +']/td[9]')[0].text
             #cve访问方式
             cve_view = html.xpath('//*[@id="vulnslisttable"]/tr[' + str(2*b) +']/td[10]')[0].text
-            cve_info = [cve_id,cve_type,release_time,update_time,cve_score,cve_authority,cve_view]
+            cve_info = [cve_id, cve_type, release_time, update_time, cve_score, cve_authority, cve_view, cve_vendor, cve_produce, cve_produce_version]
 
             b += 1
+            print(cve_info)
             result_list.append(cve_info)
 
         return result_list
