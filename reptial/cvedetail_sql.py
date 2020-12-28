@@ -129,8 +129,10 @@ class spider(object):
                 cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
+                self.lock.acquire()
                 cve_info_queue.put(cve_info)
                 url_queue.task_done()
+                self.lock.release()
 
                 #控制打印进度，防止不同进程同时打印
                 # self.lock.acquire()
