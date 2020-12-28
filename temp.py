@@ -15,6 +15,7 @@ class spider(object):
         self.thread_num = 10
         self.trytimes = 3
         self.lock = threading.Lock()
+        self.conn = sqlite3.connect('cvedetail.db',check_same_thread=False)
 
     #cev_setails中按照时间找寻cve的信息
     def vulnerabilities_by_date(self,year):
@@ -27,9 +28,15 @@ class spider(object):
         link = html.xpath('//*[@id="pagingb"]/a/@href')
         page_link = ["https://www.cvedetails.com" + i for i in link]
  
+        #创建表格
+        cur = self.conn.cursor()
+        #cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version
+        sql = F"CREATE TABLE IF NOT EXISTS cve{year}(cve_id INTEGER PRIMARY KEY, type TEXT,score TEXT, authority TEXT, vendor TEXT, produce TEXT, produce_version TEXT)"
+        cur.execute(sql)
+
 
         #设置两个队列
-        url_queue = Queue(maxsize=self.thread_num*3)
+        url_queue = Queue(maxsize=self.thread_num*2)
         cve_info_queue = Queue()
 
         #生成cve详情url
@@ -44,7 +51,7 @@ class spider(object):
             consumer_thread.start()
 
         #将cve信息存储到表格之中
-        excel_thread = threading.Thread(target=self.write_excel, args=(cve_info_queue, worksheet, row,))
+        excel_thread = threading.Thread(target=self.write_sql, args=(cve_info_queue, cur, year,))
         excel_thread.setDaemon(True)
         excel_thread.start()
 
@@ -54,15 +61,16 @@ class spider(object):
         print(url_queue.qsize())
         cve_info_queue.join()
         print(cve_info_queue.qsize())
+        self.conn.close()
 
 
     #将cve信息写入表格,然后删除内存数据
-    def write_sql(self, cve_info_queue, worksheet, row):
+    def write_sql(self, cve_info_queue, cur, year):
         while True:
                 if  not cve_info_queue.empty():
                     cve_info = cve_info_queue.get()
-                    worksheet.write_row(row, 0, cve_info)
-                    row += 1
+                    cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
+                    self.conn.commit()
 
                     cve_info_queue.task_done()
                     del cve_info

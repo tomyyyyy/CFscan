@@ -16,6 +16,7 @@ class spider(object):
         self.thread_num = 10
         self.trytimes = 3
         self.lock = threading.Lock()
+        self.conn = sqlite3.connect('cvedetail.db')
 
     #cev_setails中按照时间找寻cve的信息
     def vulnerabilities_by_date(self,year):
