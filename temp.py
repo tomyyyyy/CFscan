@@ -70,7 +70,7 @@ class spider(object):
                 if  not cve_info_queue.empty():
                     cve_info = cve_info_queue.get()
                     cve_info = [str(i) for i in cve_info]
-                    cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (str(tuple(cve_info))))
+                    cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
                     self.conn.commit()
 
                     cve_info_queue.task_done()
@@ -146,7 +146,6 @@ class spider(object):
                     url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
                     cve_url = "https://www.cvedetails.com" + url
                 except:
-                    print("页面生产完毕")
                     break
                 while True:
                     if not url_queue.full():
