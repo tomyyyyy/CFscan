@@ -139,7 +139,7 @@ class spider(object):
             
     #产生cve详情url
     def producer(self, url_queue, page_link):  # 生产者
-        for url in tqdm(page_link[15:]):
+        for url in tqdm(page_link):
             html = self.tyr_request(url,headers=self.headers)
             for i in range(1, 51):
                 try:
