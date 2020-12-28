@@ -31,7 +31,7 @@ class spider(object):
         #创建表格
         cur = self.conn.cursor()
         #cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version
-        sql = F"CREATE TABLE IF NOT EXISTS cve{year}(cve_id INTEGER PRIMARY KEY, type TEXT,score TEXT, authority TEXT, vendor TEXT, produce TEXT, produce_version TEXT)"
+        sql = F"CREATE TABLE IF NOT EXISTS cve{year}(cve_id TEXT PRIMARY KEY, type TEXT,score TEXT, authority TEXT, vendor TEXT, produce TEXT, produce_version TEXT)"
         cur.execute(sql)
 
 
@@ -69,7 +69,8 @@ class spider(object):
         while True:
                 if  not cve_info_queue.empty():
                     cve_info = cve_info_queue.get()
-                    cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
+                    cve_info = [str(i) for i in cve_info]
+                    cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (str(tuple(cve_info))))
                     self.conn.commit()
 
                     cve_info_queue.task_done()
@@ -103,23 +104,23 @@ class spider(object):
                 try:
                     cve_vendor = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[1]/a/text()')[0]
                 except:
-                    cve_vendor = None
+                    cve_vendor = " "
                 #产品
                 try:
                     cve_produce = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[2]/a/text()')[0]
                 except:
-                    cve_produce = None
+                    cve_produce = " "
                 #版本
                 try:
                     cve_produce_version = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[3]')[0].text.strip()
                 except:
-                    cve_produce_version = None
+                    cve_produce_version = " "
                 
                 #cve漏洞类型 
                 try:
                     cve_type = html.xpath('//*[@id="cvssscorestable"]/tr[8]/td/span')[0].text
                 except:
-                    cve_type = None
+                    cve_type = " "
                 #cve威胁等级
                 cve_score = html.xpath('//*[@id="cvssscorestable"]/tr[1]/td/div')[0].text
                 #cve获得的权限
@@ -130,9 +131,9 @@ class spider(object):
                 url_queue.task_done()
 
                 #控制打印进度，防止不同进程同时打印
-                self.lock.acquire()
-                print(cve_info)
-                self.lock.release()
+                # self.lock.acquire()
+                # print(cve_info)
+                # self.lock.release()
 
 
             
