@@ -73,7 +73,7 @@ class spider(object):
         while True:
                 if  not cve_info_queue.empty():
                     cve_info = cve_info_queue.get()
-
+                    print(cve_info)
                     cve_info = [str(i) for i in cve_info]
                     cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
                     
@@ -132,10 +132,10 @@ class spider(object):
                 cve_info_queue.put(cve_info,block=True)
    
 
-                #控制打印进度，防止不同进程同时打印
-                self.lock.acquire()
-                print(cve_info)
-                self.lock.release()
+                # #控制打印进度，防止不同进程同时打印
+                # self.lock.acquire()
+                # print(cve_info)
+                # self.lock.release()
 
 
             
