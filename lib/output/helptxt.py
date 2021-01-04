@@ -27,6 +27,10 @@ class ArgumentParser(object):
                         action='store_true',dest='show_level',default=False,
                         help='input level')
 
+        parser.add_option('-p','--protocol',
+                        action='store',dest='protocol',default='http',
+                        help='http, ssh, telnet, FTP')
+
         parser.add_option('--thread',
                         action='store',dest='threads_Count',default=5,
                         help='input threadsCount')
