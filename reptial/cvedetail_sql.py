@@ -64,7 +64,7 @@ class spider(object):
         # print(cve_info_queue.qsize())
 
         self.conn.commit()
-        self.conn.close()
+        # self.conn.close()
         print(F"{year}年cve信息全部写入成功")
 
 
@@ -156,5 +156,6 @@ if __name__ == "__main__":
     spider = spider()
     for i in range(1999,2020):
         spider.vulnerabilities_by_date(i)
+    spider.conn.close()
 
     
