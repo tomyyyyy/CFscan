@@ -100,19 +100,19 @@ class spider(object):
                 html = self.tyr_request(url, headers=self.headers)
                 #cve编号 
                 cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
-                #供应商 
+                #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
                 try:
-                    cve_vendor = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[1]/a/text()')[0]
+                    cve_vendor = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[3]/a/text()')[0]
                 except:
                     cve_vendor = " "
-                #产品
+                #产品  //*[@id="vulnprodstable"]/tbody/tr[2]/td[4]/a
                 try:
-                    cve_produce = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[2]/a/text()')[0]
+                    cve_produce = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[4]/a/text()')[0]
                 except:
                     cve_produce = " "
-                #版本
+                #版本 //*[@id="vulnprodstable"]/tbody/tr[2]/td[5]
                 try:
-                    cve_produce_version = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[3]')[0].text.strip()
+                    cve_produce_version = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[5]')[0].text.strip()
                 except:
                     cve_produce_version = " "
                 
@@ -128,11 +128,8 @@ class spider(object):
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
                 url_queue.task_done()
-
-                while True:
-                    if not cve_info_queue.full():
-                        cve_info_queue.put(cve_info)
-                        break
+                cve_info_queue.put(cve_info,block=True)
+   
 
                 #控制打印进度，防止不同进程同时打印
                 # self.lock.acquire()
@@ -151,10 +148,8 @@ class spider(object):
                     cve_url = "https://www.cvedetails.com" + url
                 except:
                     break
-                while True:
-                    if not url_queue.full():
-                        url_queue.put(cve_url)
-                        break
+                    url_queue.put(cve_url,block=True)
+
 
 
 if __name__ == "__main__":
