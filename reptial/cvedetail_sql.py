@@ -73,6 +73,7 @@ class spider(object):
         while True:
                 if  not cve_info_queue.empty():
                     cve_info = cve_info_queue.get()
+                    print(cve_info)
                     cve_info = [str(i) for i in cve_info]
                     cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
                     
