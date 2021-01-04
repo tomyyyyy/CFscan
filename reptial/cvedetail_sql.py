@@ -103,17 +103,17 @@ class spider(object):
                 cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
                 #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
                 try:
-                    cve_vendor = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[3]/a/text()')[0]
+                    cve_vendor = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[3]/a/text()')[0]
                 except:
                     cve_vendor = " "
                 #产品  //*[@id="vulnprodstable"]/tbody/tr[2]/td[4]/a
                 try:
-                    cve_produce = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[4]/a/text()')[0]
+                    cve_produce = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[4]/a/text()')[0]
                 except:
                     cve_produce = " "
                 #版本 //*[@id="vulnprodstable"]/tbody/tr[2]/td[5]
                 try:
-                    cve_produce_version = html.xpath('//*[@id="vulnversconuttable"]/tr[2]/td[5]')[0].text.strip()
+                    cve_produce_version = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[5]')[0].text.strip()
                 except:
                     cve_produce_version = " "
                 
