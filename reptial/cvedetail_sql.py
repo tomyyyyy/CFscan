@@ -59,9 +59,9 @@ class spider(object):
         #控制线程进度，确定能够生产完毕
         producer_thread.join()
         url_queue.join()
-        # print(url_queue.qsize())
+        print(url_queue.qsize())
         cve_info_queue.join()
-        # print(cve_info_queue.qsize())
+        print(cve_info_queue.qsize())
 
         self.conn.commit()
         # self.conn.close()
