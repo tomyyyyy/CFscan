@@ -149,7 +149,7 @@ class spider(object):
                     cve_url = "https://www.cvedetails.com" + url
                 except:
                     break
-                    url_queue.put(cve_url,block=True)
+                url_queue.put(cve_url,block=True)
 
 
 
