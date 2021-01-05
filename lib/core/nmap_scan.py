@@ -8,7 +8,7 @@ class nmap_scan(object):
         
     def scan(self,host_list):
         l = []
-        arg = "-PE -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4 -Pn -sS -v -O"
+        arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
         output = nmap.PortScanner().scan(hosts=host_list, arguments=arg)
 
         for result in output["scan"].values():
