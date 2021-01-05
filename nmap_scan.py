@@ -10,17 +10,14 @@ class nmap_scan(object):
         l = []
         arg = "-PE -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4 -Pn -sS -v -O"
         output = nmap.PortScanner().scan(hosts=host, arguments=arg)
-        print(output)
-        print("================")
 
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
-                host_list = result["addresses"]["ipv4"]
-                vendor = result["vendor"]
-                reason = result["status"]["reason"]
+                host = result["addresses"]["ipv4"]
                 port = result["portused"]
-                os = result["osmatch"]
-                data = {"host":host_list,"vendor":vendor,"reason":reason,"port":port,"os":os}
+                vendor = result["osmatch"][0]["osclass"][0]["vendor"]
+                os = result["osmatch"][0]["name"]
+                data = {"host":host, "port":port, "vendor":vendor,"os":os}
 
             l.append(data)
             del result
