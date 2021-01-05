@@ -14,9 +14,10 @@ class nmap_scan(object):
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
                 host = result["addresses"]["ipv4"]
-                port = result["portused"]
+                port = result["tcp"]["port"]
                 vendor = result["osmatch"][0]["osclass"][0]["vendor"]
-                os = result["osmatch"][0]["name"]
+                os = result["osmatch"][0]["osclass"][0]["osfamily"]
+                version = result["osmatch"][0]["osclass"][0]["osgen"]
                 data = {"host":host, "port":port, "vendor":vendor,"os":os}
 
             l.append(data)
