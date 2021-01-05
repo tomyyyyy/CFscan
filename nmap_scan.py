@@ -28,9 +28,9 @@ class nmap_scan(object):
     def get_open_port(self,tcp_info):
         port = []
         for i in tcp_info:
-            print(tcp_info[i]['state'])
-            if tcp_info[i]["state"] == 'open':
+            if tcp_info[i]["state"] == "open":
                 port.append(i)
+        return port
 
    
 if __name__ == "__main__":
