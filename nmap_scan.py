@@ -10,6 +10,8 @@ class nmap_scan(object):
         l = []
         arg = "-PE -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4 -Pn -sS -v -O"
         output = nmap.PortScanner().scan(hosts=host, arguments=arg)
+        print(output)
+        print("================")
 
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
