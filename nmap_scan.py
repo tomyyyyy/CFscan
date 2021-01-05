@@ -18,12 +18,13 @@ class nmap_scan(object):
                 vendor = result["osmatch"][0]["osclass"][0]["vendor"]
                 os = result["osmatch"][0]["osclass"][0]["osfamily"]
                 version = result["osmatch"][0]["osclass"][0]["osgen"]
-                data = {"host":host, "port":port, "vendor":vendor,"os":os}
+                data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
 
             l.append(data)
             del result
             gc.collect()
         return l
+
 
     def get_open_port(self,tcp_info):
         port = []
