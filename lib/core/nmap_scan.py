@@ -36,7 +36,7 @@ class nmap_scan(object):
    
 if __name__ == "__main__":
     nm = nmap_scan()
-    ip = "47.95.4.158/24"
+    ip = "47.95.4.158"
     l = nm.scan(ip)
     print(l)
 
