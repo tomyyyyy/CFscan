@@ -14,7 +14,8 @@ class nmap_scan(object):
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
                 host = result["addresses"]["ipv4"]
-                port = result["tcp"]["port"]
+                port = result["tcp"]
+                self.get_open_port(result["tcp"])
                 vendor = result["osmatch"][0]["osclass"][0]["vendor"]
                 os = result["osmatch"][0]["osclass"][0]["osfamily"]
                 version = result["osmatch"][0]["osclass"][0]["osgen"]
@@ -25,34 +26,13 @@ class nmap_scan(object):
             gc.collect()
         return l
 
+    def get_open_port(self,tcp_info):
+        for i in tcp_info:
+            print(i)
 
-    def geo(self, allDate):
-        l = []
-        list = []
-
-        # 将所查询的IP地址读取出来赋值给data
-        for i in range(len(allDate)):
-            ip = allDate[i]['host']
-            list.append(self.get_address(ip))
-        return list
-
-    def get_address(self,ip):
-        reader = geoip2.database.Reader('./resourses/GeoLite2-City.mmdb')
-        response = reader.city(ip)
-
-        country = response.country.names["zh-CN"]
-        site = response.subdivisions.most_specific.names.get("zh-CN")
-        city = response.city.names.get("zh-CN")
-        Location_Latitude = response.location.latitude
-        Location_Longitude = response.location.longitude
-        address = '{}{}{} 经纬度:{} {}'.format(country, site, str(city),str(Location_Latitude),str(Location_Longitude))
-        return address
-
-
+   
 if __name__ == "__main__":
     nm = nmap_scan()
     l = nm.scan("47.95.4.158")
     print(l)
-    address = nm.geo(l)
-    print(address)
 
