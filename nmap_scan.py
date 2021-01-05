@@ -14,8 +14,7 @@ class nmap_scan(object):
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
                 host = result["addresses"]["ipv4"]
-                port = result["tcp"]
-                self.get_open_port(result["tcp"])
+                port = self.get_open_port(result["tcp"])
                 vendor = result["osmatch"][0]["osclass"][0]["vendor"]
                 os = result["osmatch"][0]["osclass"][0]["osfamily"]
                 version = result["osmatch"][0]["osclass"][0]["osgen"]
@@ -27,8 +26,10 @@ class nmap_scan(object):
         return l
 
     def get_open_port(self,tcp_info):
+        port = []
         for i in tcp_info:
-            print(i)
+            if tcp_info[i]["state"] == "open":
+                port.append(i)
 
    
 if __name__ == "__main__":
