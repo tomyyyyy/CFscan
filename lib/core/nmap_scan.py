@@ -6,10 +6,10 @@ class nmap_scan(object):
     def __init__(self):
         pass
         
-    def scan(self,host):
+    def scan(self,host_list):
         l = []
         arg = "-PE -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4 -Pn -sS -v -O"
-        output = nmap.PortScanner().scan(hosts=host, arguments=arg)
+        output = nmap.PortScanner().scan(hosts=host_list, arguments=arg)
 
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
@@ -36,6 +36,7 @@ class nmap_scan(object):
    
 if __name__ == "__main__":
     nm = nmap_scan()
-    l = nm.scan("47.95.4.158")
+    ip = ["47.95.4.158","47.95.4.156"]
+    l = nm.scan(ip)
     print(l)
 
