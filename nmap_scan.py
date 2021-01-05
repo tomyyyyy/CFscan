@@ -34,7 +34,7 @@ class nmap_scan(object):
         for i in range(len(allDate)):
             ip = allDate[i]['host']
             list.append(self.get_address(ip))
-            print(list)
+        return list
 
     def get_address(self,ip):
         reader = geoip2.database.Reader('./resourses/GeoLite2-City.mmdb')
@@ -52,5 +52,7 @@ class nmap_scan(object):
 if __name__ == "__main__":
     nm = nmap_scan()
     l = nm.scan("47.95.4.158")
-    nm.geo(l)
+    print(l)
+    address = nm.geo(l)
+    print(address)
 

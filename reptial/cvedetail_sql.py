@@ -18,6 +18,7 @@ class spider(object):
         self.conn = sqlite3.connect('cvedetail.db',check_same_thread=False)
         self.conn.execute('PRAGMA synchronous = OFF')
 
+
     #cev_setails中按照时间找寻cve的信息
     def vulnerabilities_by_date(self,year):
         url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
@@ -59,9 +60,9 @@ class spider(object):
         #控制线程进度，确定能够生产完毕
         producer_thread.join()
         url_queue.join()
-        print(url_queue.qsize())
+        # print(url_queue.qsize())
         cve_info_queue.join()
-        print(cve_info_queue.qsize())
+        # print(cve_info_queue.qsize())
 
         self.conn.commit()
         # self.conn.close()
@@ -138,7 +139,6 @@ class spider(object):
                 # self.lock.release()
 
 
-            
     #产生cve详情url
     def producer(self, url_queue, page_link):  # 生产者
         for url in tqdm(page_link):
@@ -150,7 +150,6 @@ class spider(object):
                 except:
                     break
                 url_queue.put(cve_url,block=True)
-
 
 
 if __name__ == "__main__":
