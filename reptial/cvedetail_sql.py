@@ -6,7 +6,7 @@ from lxml import etree
 from tqdm import tqdm
 import threading
 import time
-from queue import Queue
+from multiprocessing import Process, Queue
 import sqlite3
 
 class spider(object):
@@ -38,22 +38,22 @@ class spider(object):
 
 
         #设置两个队列
-        url_queue = Queue(maxsize=self.thread_num*2)
-        cve_info_queue = Queue(maxsize=self.thread_num*2)
+        url_queue = Queue(maxsize=self.thread_num*3)
+        cve_info_queue = Queue(maxsize=self.thread_num*3)
 
         #生成cve详情url
-        producer_thread = threading.Thread(target=self.producer, args=(url_queue, page_link))
+        producer_thread = Process(target=self.producer, args=(url_queue, page_link))
         producer_thread.setDaemon(True)
         producer_thread.start()
 
         #处理cve详情页面
         for index in range(self.thread_num):
-            consumer_thread = threading.Thread(target=self.cve_data, args=(url_queue, cve_info_queue, ))
+            consumer_thread = Process(target=self.cve_data, args=(url_queue, cve_info_queue, ))
             consumer_thread.setDaemon(True)
             consumer_thread.start()
 
         #将cve信息存储到表格之中
-        excel_thread = threading.Thread(target=self.write_sql, args=(cve_info_queue, cur, year,))
+        excel_thread = Process(target=self.write_sql, args=(cve_info_queue, cur, year,))
         excel_thread.setDaemon(True)
         excel_thread.start()
 
