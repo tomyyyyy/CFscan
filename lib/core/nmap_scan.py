@@ -8,6 +8,10 @@ class nmap_scan(object):
     def __init__(self):
         self.thread_num = 10
         self.lock = threading.Lock()
+        self.conn = sqlite3.connect('scan.db',check_same_thread=False)
+        self.cur = self.conn.cursor()
+        self.sql ="CREATE TABLE IF NOT EXISTS scan(host TEXT PRIMARY KEY, port TEXT,vendor TEXT, os TEXT, version TEXT)"
+        self.cur.execute(self.sql)
         
     def scan(self,ip):
         l = []
@@ -30,16 +34,23 @@ class nmap_scan(object):
 
 
     def scan_thread(self,host_list):
-        scan_queue = Queue(maxsize=self.thread_num*3)
-        producer_thread = threading.Thread(target=self.producer, args=(host_list, scan_queue))
+
+        for i in range(self.thread_num):
+            scan_thread = threading.Thread(target=self.producer, args=(host_list))
+            scan_thread.setDaemon(True)
+            scan_thread.start()
 
 
+        scan_thread.join()
+        print("test")
 
-    def scan_ip(self,host_list,scan_queue):
+
+    def scan_ip(self,host_list):
         for ip in host_list:
-            scan_queue.put(ip)
-
-
+            data = self.scan(ip)
+            self.lock.acquire()
+            cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
+            self.lock.release()
 
     def get_open_port(self,tcp_info):
         port = []
