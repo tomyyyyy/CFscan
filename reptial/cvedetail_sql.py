@@ -60,9 +60,9 @@ class spider(object):
         #控制线程进度，确定能够生产完毕
         producer_thread.join()
         url_queue.join()
-        print(url_queue.qsize())
+        # print(url_queue.qsize())
         cve_info_queue.join()
-        print(cve_info_queue.qsize())
+        # print(cve_info_queue.qsize())
 
         self.conn.commit()
         # self.conn.close()
@@ -130,7 +130,7 @@ class spider(object):
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
                 url_queue.task_done()
-                cve_info_queue.put(cve_info,block=True)
+                cve_info_queue.put(cve_info,block=True,timeout=5)
    
 
                 # #控制打印进度，防止不同进程同时打印
@@ -149,7 +149,7 @@ class spider(object):
                     cve_url = "https://www.cvedetails.com" + url
                 except:
                     break
-                url_queue.put(cve_url,block=True)
+                url_queue.put(cve_url,block=True,timeout=5)
 
 
 if __name__ == "__main__":
