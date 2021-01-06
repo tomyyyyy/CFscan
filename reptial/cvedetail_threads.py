@@ -96,40 +96,41 @@ class spider(object):
     #提取cve信息
     def cve_data(self, url_queue, cve_info_queue):
         while True:
-            if not url_queue.empty():
-                url = url_queue.get()
-                html = self.tyr_request(url, headers=self.headers)
-                #cve编号 
-                cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
-                #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
-                try:
-                    cve_vendor = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[3]/a/text()')[0]
-                except:
-                    cve_vendor = " "
-                #产品  //*[@id="vulnprodstable"]/tbody/tr[2]/td[4]/a
-                try:
-                    cve_produce = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[4]/a/text()')[0]
-                except:
-                    cve_produce = " "
-                #版本 //*[@id="vulnprodstable"]/tbody/tr[2]/td[5]
-                try:
-                    cve_produce_version = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[5]')[0].text.strip()
-                except:
-                    cve_produce_version = " "
-                
-                #cve漏洞类型 
-                try:
-                    cve_type = html.xpath('//*[@id="cvssscorestable"]/tr[8]/td/span')[0].text
-                except:
-                    cve_type = " "
-                #cve威胁等级
-                cve_score = html.xpath('//*[@id="cvssscorestable"]/tr[1]/td/div')[0].text
-                #cve获得的权限
-                cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
-                cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
+            url = url_queue.get()
+            html = self.tyr_request(url, headers=self.headers)
+            #cve编号 
+            cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
+            #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
+            try:
+                cve_vendor = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[3]/a/text()')[0]
+            except:
+                cve_vendor = " "
+            #产品  //*[@id="vulnprodstable"]/tbody/tr[2]/td[4]/a
+            try:
+                cve_produce = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[4]/a/text()')[0]
+            except:
+                cve_produce = " "
+            #版本 //*[@id="vulnprodstable"]/tbody/tr[2]/td[5]
+            try:
+                cve_produce_version = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[5]')[0].text.strip()
+            except:
+                cve_produce_version = " "
+            
+            #cve漏洞类型 
+            try:
+                cve_type = html.xpath('//*[@id="cvssscorestable"]/tr[8]/td/span')[0].text
+            except:
+                cve_type = " "
+            #cve威胁等级
+            cve_score = html.xpath('//*[@id="cvssscorestable"]/tr[1]/td/div')[0].text
+            #cve获得的权限
+            cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
+            cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
-                url_queue.task_done()
-                cve_info_queue.put(cve_info,block=True)
+            url_queue.task_done()
+            self.lock.acquire()
+            cve_info_queue.put(cve_info,block=True)
+            self.lock.release()
    
 
                 # #控制打印进度，防止不同进程同时打印
@@ -138,7 +139,6 @@ class spider(object):
                 # self.lock.release()
 
 
-            
     #产生cve详情url
     def producer(self, url_queue, page_link):  # 生产者
         for url in tqdm(page_link):
@@ -150,7 +150,6 @@ class spider(object):
                 except:
                     break
                 url_queue.put(cve_url,block=True)
-
 
 
 if __name__ == "__main__":
