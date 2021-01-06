@@ -38,8 +38,8 @@ class spider(object):
 
 
         #设置两个队列
-        url_queue = Queue(maxsize=self.thread_num*3)
-        cve_info_queue = Queue(maxsize=self.thread_num*3)
+        url_queue = Queue(maxsize=self.thread_num*2)
+        cve_info_queue = Queue(maxsize=self.thread_num*2)
 
         #生成cve详情url
         producer_thread = threading.Thread(target=self.producer, args=(url_queue, page_link))
@@ -130,7 +130,7 @@ class spider(object):
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
                 url_queue.task_done()
-                cve_info_queue.put(cve_info,block=True,timeout=5)
+                cve_info_queue.put(cve_info,block=True)
    
 
                 # #控制打印进度，防止不同进程同时打印
@@ -149,7 +149,7 @@ class spider(object):
                     cve_url = "https://www.cvedetails.com" + url
                 except:
                     break
-                url_queue.put(cve_url,block=True,timeout=5)
+                url_queue.put(cve_url,block=True)
 
 
 if __name__ == "__main__":
