@@ -78,7 +78,7 @@ class spider(object):
                     cve_info = [str(i) for i in cve_info]
                     cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
                     
-                    cve_info_queue.task_done()
+                    # cve_info_queue.task_done()
                     del cve_info
                     gc.collect()
 
@@ -129,7 +129,7 @@ class spider(object):
                 cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
                 cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
-                url_queue.task_done()
+                # url_queue.task_done()
                 cve_info_queue.put(cve_info,block=True)
    
 
