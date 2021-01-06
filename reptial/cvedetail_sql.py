@@ -43,18 +43,18 @@ class spider(object):
 
         #生成cve详情url
         producer_thread = Process(target=self.producer, args=(url_queue, page_link))
-        producer_thread.setDaemon(True)
+        producer_thread.daemon = True
         producer_thread.start()
 
         #处理cve详情页面
         for index in range(self.thread_num):
             consumer_thread = Process(target=self.cve_data, args=(url_queue, cve_info_queue, ))
-            consumer_thread.setDaemon(True)
+            consumer_thread.daemon = True
             consumer_thread.start()
 
         #将cve信息存储到表格之中
         excel_thread = Process(target=self.write_sql, args=(cve_info_queue, cur, year,))
-        excel_thread.setDaemon(True)
+        excel_thread.daemon = True
         excel_thread.start()
 
         #控制线程进度，确定能够生产完毕
