@@ -154,7 +154,7 @@ class spider(object):
 
 if __name__ == "__main__":
     spider = spider()
-    for i in range(1999,2000):
+    for i in range(1999,2020):
         spider.vulnerabilities_by_date(i)
     spider.conn.close()
 
