@@ -1,15 +1,18 @@
 import gc
-import geoip2.database
 import nmap
+import threading
+from queue import Queue
+import sqlite3
 
 class nmap_scan(object):
     def __init__(self):
-        pass
+        self.thread_num = 10
+        self.lock = threading.Lock()
         
-    def scan(self,host_list):
+    def scan(self,ip):
         l = []
         arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
-        output = nmap.PortScanner().scan(hosts=host_list, arguments=arg)
+        output = nmap.PortScanner().scan(hosts=ip, arguments=arg)
 
         for result in output["scan"].values():
             if result["status"]["state"] == "up":
@@ -24,6 +27,18 @@ class nmap_scan(object):
             del result
             gc.collect()
         return l
+
+
+    def scan_thread(self,host_list):
+        scan_queue = Queue(maxsize=self.thread_num*3)
+        producer_thread = threading.Thread(target=self.producer, args=(host_list, scan_queue))
+
+
+
+    def scan_ip(self,host_list,scan_queue):
+        for ip in host_list:
+            scan_queue.put(ip)
+
 
 
     def get_open_port(self,tcp_info):
