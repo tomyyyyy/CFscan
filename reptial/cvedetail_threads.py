@@ -128,10 +128,8 @@ class spider(object):
             cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
             url_queue.task_done()
-            self.lock.acquire()
-            cve_info_queue.put(cve_info,block=True)
-            self.lock.release()
-   
+            cve_info_queue.put(cve_info,timeout=3)
+
 
                 # #控制打印进度，防止不同进程同时打印
                 # self.lock.acquire()
@@ -149,7 +147,7 @@ class spider(object):
                     cve_url = "https://www.cvedetails.com" + url
                 except:
                     break
-                url_queue.put(cve_url,block=True)
+                url_queue.put(cve_url,timeout=3)
 
 
 if __name__ == "__main__":
