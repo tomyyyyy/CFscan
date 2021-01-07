@@ -41,6 +41,9 @@ class nmap_scan(object):
         scan_queue = Queue(maxsize=self.thread_num*3)
 
         ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,))
+        ip_thread.setDaemon(True)
+        ip_thread.start()
+
 
         for i in range(self.thread_num):
             scan_thread = threading.Thread(target=self.scan, args=(ip_queue,))
@@ -49,6 +52,8 @@ class nmap_scan(object):
 
 
         sql_thread = threading.Thread(target=self.write_sql, args=(scan_queue,))
+        sql_thread.setDaemon(True)
+        sql_thread.start()
 
         ip_thread.join()
         scan_queue.join()
