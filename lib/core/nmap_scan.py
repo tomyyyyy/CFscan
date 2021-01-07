@@ -35,7 +35,6 @@ class nmap_scan(object):
     def scan_thread(self):
         with open(self.file,"r") as f:
             ip_list = f.readlines()
-        print(ip_list[:10])
 
         scan_queue = Queue(maxsize=self.thread_num*3)
         scan_thread_list = []
@@ -58,6 +57,7 @@ class nmap_scan(object):
     def scan_ip(self,host_list,scan_queue):
         for ip in host_list:
             try:
+                ip = ip.strip()
                 data = self.scan(ip)
                 if data is None:
                     continue
