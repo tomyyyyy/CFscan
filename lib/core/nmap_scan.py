@@ -1,8 +1,7 @@
 import gc
 import nmap
 import threading
-from multiprocessing import Queue
-# from queue import Queue
+from queue import Queue
 import sqlite3
 
 class nmap_scan(object):
@@ -17,7 +16,9 @@ class nmap_scan(object):
 
         
     def scan(self,ip_queue,scan_queue):
+        self.lock.acquire()
         ip = ip_queue.get()
+        self.lock.release()
         l = []
         arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
         output = nmap.PortScanner().scan(hosts=ip, arguments=arg)
@@ -30,10 +31,11 @@ class nmap_scan(object):
                     vendor = result["osmatch"][0]["osclass"][0]["vendor"]
                     os = result["osmatch"][0]["osclass"][0]["osfamily"]
                     version = result["osmatch"][0]["osclass"][0]["osgen"]
-                    # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
                     data = [host,port,vendor,os,version]
+                    self.lock.acquire()
                     scan_queue.put(data)
-                    # scan_queue.task_done()
+                    scan_queue.task_done()
+                    self.lock.release()
         except:
             pass
 
@@ -61,7 +63,9 @@ class nmap_scan(object):
         sql_thread.start()
 
         ip_thread.join()
-        sql_thread.join()
+        
+        ip_queue.join()
+        scan_queue.join()
 
 
         self.conn.commit()
@@ -70,7 +74,7 @@ class nmap_scan(object):
     def scan_ip(self,host_list,ip_queue):
         for ip in host_list:
             ip_queue.put(ip)
-            # ip_queue.task_done()
+            ip_queue.task_done()
 
 
     def write_sql(self,scan_queue):
