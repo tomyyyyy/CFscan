@@ -40,7 +40,7 @@ class nmap_scan(object):
                     scan_queue.task_done()
                     self.lock.release()
         except:
-            pass
+            print("主机down")
 
 
 
@@ -75,7 +75,7 @@ class nmap_scan(object):
 
     def scan_ip(self,host_list,ip_queue):
         for ip in host_list:
-            ip_queue.put(ip)
+            ip_queue.put(ip,block=True)
             ip_queue.task_done()
 
 
