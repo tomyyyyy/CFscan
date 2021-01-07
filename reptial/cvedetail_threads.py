@@ -72,15 +72,14 @@ class spider(object):
     #将cve信息写入表格,然后删除内存数据
     def write_sql(self, cve_info_queue, cur, year):
         while True:
-                if  not cve_info_queue.empty():
-                    cve_info = cve_info_queue.get()
-                    # print(cve_info)
-                    cve_info = [str(i) for i in cve_info]
-                    cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
-                    
-                    cve_info_queue.task_done()
-                    del cve_info
-                    gc.collect()
+            cve_info = cve_info_queue.get()
+            # print(cve_info)
+            cve_info = [str(i) for i in cve_info]
+            cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
+            
+            cve_info_queue.task_done()
+            del cve_info
+            gc.collect()
 
     #重试函数,防止连接异常
     def tyr_request(self, url, headers):
@@ -153,7 +152,7 @@ class spider(object):
 
 if __name__ == "__main__":
     spider = spider()
-    for i in range(2008,2019):
+    for i in range(1999,2019):
         spider.vulnerabilities_by_date(i)
     spider.conn.close()
 
