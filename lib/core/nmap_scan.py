@@ -82,6 +82,7 @@ class nmap_scan(object):
             try:
                 data = scan_queue.get()
                 data = [str(i) for i in data]
+                print(data)
                 self.cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
             except:
                 continue
