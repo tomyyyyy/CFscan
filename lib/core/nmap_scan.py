@@ -42,17 +42,15 @@ class nmap_scan(object):
 
         ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,))
 
-        scan_thread_list = []
         for i in range(self.thread_num):
             scan_thread = threading.Thread(target=self.scan, args=(ip_queue,))
             scan_thread.setDaemon(True)
             scan_thread.start()
-            # scan_thread_list.append(scan_thread)
+
 
         sql_thread = threading.Thread(target=self.write_sql, args=(scan_queue,))
 
-        # for i in scan_thread_list:
-        #     i.join()
+        ip_thread.join()
         scan_queue.join()
         ip_queue.join()
 
