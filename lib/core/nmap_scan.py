@@ -27,7 +27,10 @@ class nmap_scan(object):
             for result in output["scan"].values():
                 if result["status"]["state"] == "up":
                     host = result["addresses"]["ipv4"]
-                    port = self.get_open_port(result["tcp"])
+                    port = []
+                    for i in result["tcp"]:
+                        if result["tcp"][i]["state"] == "open":
+                            port.append(i)
                     vendor = result["osmatch"][0]["osclass"][0]["vendor"]
                     os = result["osmatch"][0]["osclass"][0]["osfamily"]
                     version = result["osmatch"][0]["osclass"][0]["osgen"]
@@ -45,8 +48,8 @@ class nmap_scan(object):
         with open(self.file,"r") as f:
             ip_list = f.readlines()
 
-        ip_queue = Queue(maxsize=self.thread_num*3)
-        scan_queue = Queue(maxsize=self.thread_num*3)
+        ip_queue = Queue(maxsize=self.thread_num*5)
+        scan_queue = Queue(maxsize=self.thread_num*5)
 
         ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,))
         ip_thread.setDaemon(True)
@@ -62,7 +65,7 @@ class nmap_scan(object):
         sql_thread.setDaemon(True)
         sql_thread.start()
 
-        ip_thread.join()
+        # ip_thread.join()
         
         ip_queue.join()
         scan_queue.join()
@@ -86,14 +89,6 @@ class nmap_scan(object):
                 self.cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
             except:
                 continue
-
-
-    def get_open_port(self,tcp_info):
-        port = []
-        for i in tcp_info:
-            if tcp_info[i]["state"] == "open":
-                port.append(i)
-        return port
 
 
 if __name__ == "__main__":
