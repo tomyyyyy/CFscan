@@ -33,7 +33,7 @@ class nmap_scan(object):
                     # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
                     data = [host,port,vendor,os,version]
                     scan_queue.put(data)
-                    scan_queue.task_done()
+                    # scan_queue.task_done()
         except:
             pass
 
@@ -71,7 +71,7 @@ class nmap_scan(object):
     def scan_ip(self,host_list,ip_queue):
         for ip in host_list:
             ip_queue.put(ip)
-            ip_queue.task_done()
+            # ip_queue.task_done()
 
 
     def write_sql(self,scan_queue):
