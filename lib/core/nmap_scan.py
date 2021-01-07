@@ -58,6 +58,7 @@ class nmap_scan(object):
         for ip in host_list:
             try:
                 ip = ip.strip()
+                print(ip)
                 data = self.scan(ip)
                 if data is None:
                     continue
