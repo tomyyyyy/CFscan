@@ -17,29 +17,30 @@ class nmap_scan(object):
 
         
     def scan(self,ip_queue,scan_queue):
-        ip = ip_queue.get()
-        l = []
-        arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
-        output = self.nm.scan(hosts=ip, arguments=arg)
+        while True:
+            ip = ip_queue.get()
+            l = []
+            arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
+            output = self.nm.scan(hosts=ip, arguments=arg)
 
-        try:
-            for result in output["scan"].values():
-                if result["status"]["state"] == "up":
-                    host = result["addresses"]["ipv4"]
-                    port = []
-                    for i in result["tcp"]:
-                        if result["tcp"][i]["state"] == "open":
-                            port.append(i)
-                    vendor = result["osmatch"][0]["osclass"][0]["vendor"]
-                    os = result["osmatch"][0]["osclass"][0]["osfamily"]
-                    version = result["osmatch"][0]["osclass"][0]["osgen"]
-                    data = [host,port,vendor,os,version]
+            try:
+                for result in output["scan"].values():
+                    if result["status"]["state"] == "up":
+                        host = result["addresses"]["ipv4"]
+                        port = []
+                        for i in result["tcp"]:
+                            if result["tcp"][i]["state"] == "open":
+                                port.append(i)
+                        vendor = result["osmatch"][0]["osclass"][0]["vendor"]
+                        os = result["osmatch"][0]["osclass"][0]["osfamily"]
+                        version = result["osmatch"][0]["osclass"][0]["osgen"]
+                        data = [host,port,vendor,os,version]
 
-                    scan_queue.put(data)
-                    scan_queue.task_done()
+                        scan_queue.put(data)
+                        scan_queue.task_done()
 
-        except:
-            print(ip,"down")
+            except:
+                print(ip,"down")
 
 
 
@@ -47,6 +48,7 @@ class nmap_scan(object):
         with open(self.file,"r") as f:
             ip_list = f.readlines()
 
+        # ip_list = [str(ip_list).strip() for i in ip_list]
         ip_queue = Queue(maxsize=self.thread_num*5)
         scan_queue = Queue(maxsize=self.thread_num*5)
 
@@ -77,6 +79,7 @@ class nmap_scan(object):
 
     def scan_ip(self,host_list,ip_queue):
         for ip in host_list:
+            ip = str(ip).strip()
             ip_queue.put(ip,block=True)
             ip_queue.task_done()
 
