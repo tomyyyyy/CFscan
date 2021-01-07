@@ -20,11 +20,11 @@ class spider(object):
 
 
     #cev_setails中按照时间找寻cve的信息
-    def vulnerabilities_by_date(self,year):
+    def vulnerabilities_by_date(self):
         #创建表格
         cur = self.conn.cursor()
         #cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version
-        sql = F"CREATE TABLE IF NOT EXISTS cve{year}(cve_id TEXT PRIMARY KEY, type TEXT,score TEXT, authority TEXT, vendor TEXT, produce TEXT, produce_version TEXT)"
+        sql = F"CREATE TABLE IF NOT EXISTS cve(cve_id TEXT PRIMARY KEY, type TEXT,score TEXT, authority TEXT, vendor TEXT, produce TEXT, produce_version TEXT)"
         cur.execute(sql)
 
 
@@ -56,8 +56,8 @@ class spider(object):
         # print(cve_info_queue.qsize())
 
         self.conn.commit()
-        # self.conn.close()
-        print(F"{year}年cve信息全部写入成功")
+        self.conn.close()
+        
 
 
     #将cve信息写入表格,然后删除内存数据
@@ -66,7 +66,7 @@ class spider(object):
             cve_info = cve_info_queue.get()
             # print(cve_info)
             cve_info = [str(i) for i in cve_info]
-            cur.execute(F"INSERT INTO cve{year} values(?,?,?,?,?,?,?)", (tuple(cve_info)))
+            cur.execute(F"INSERT INTO cve values(?,?,?,?,?,?,?)", (tuple(cve_info)))
             
             cve_info_queue.task_done()
             del cve_info
@@ -147,11 +147,12 @@ class spider(object):
                         break
                     url_queue.put(cve_url,timeout=3)
 
+            print(F"{year}年cve信息全部写入成功")
+
 
 if __name__ == "__main__":
     spider = spider()
-    for i in range(1999,2019):
-        spider.vulnerabilities_by_date(i)
-    spider.conn.close()
+    spider.vulnerabilities_by_date()
+
 
     
