@@ -65,8 +65,7 @@ class nmap_scan(object):
         sql_thread.setDaemon(True)
         sql_thread.start()
 
-        # ip_thread.join()
-        
+        ip_thread.join()
         ip_queue.join()
         scan_queue.join()
 
