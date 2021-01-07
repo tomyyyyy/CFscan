@@ -1,7 +1,8 @@
 import gc
 import nmap
 import threading
-from queue import Queue
+from multiprocessing import Queue
+# from queue import Queue
 import sqlite3
 
 class nmap_scan(object):

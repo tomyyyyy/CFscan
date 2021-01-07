@@ -6,7 +6,7 @@ from lxml import etree
 from tqdm import tqdm
 import threading
 import time
-from queue import Queue
+from multiprocessing import Queue
 import sqlite3
 
 class spider(object):
