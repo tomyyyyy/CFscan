@@ -42,13 +42,13 @@ class nmap_scan(object):
         ip_queue = Queue(maxsize=self.thread_num*3)
         scan_queue = Queue(maxsize=self.thread_num*3)
 
-        ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,scan_queue,))
+        ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,))
         ip_thread.setDaemon(True)
         ip_thread.start()
 
 
         for i in range(self.thread_num):
-            scan_thread = threading.Thread(target=self.scan, args=(ip_queue,))
+            scan_thread = threading.Thread(target=self.scan, args=(ip_queue,scan_queue,))
             scan_thread.setDaemon(True)
             scan_thread.start()
 
