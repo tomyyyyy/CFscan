@@ -36,10 +36,9 @@ class nmap_scan(object):
     def scan_thread(self,host_list):
 
         for i in range(self.thread_num):
-            scan_thread = threading.Thread(target=self.producer, args=(host_list))
+            scan_thread = threading.Thread(target=self.scan_ip, args=(host_list))
             scan_thread.setDaemon(True)
             scan_thread.start()
-
 
         scan_thread.join()
         print("test")
@@ -52,6 +51,7 @@ class nmap_scan(object):
             cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
             self.lock.release()
 
+
     def get_open_port(self,tcp_info):
         port = []
         for i in tcp_info:
@@ -62,7 +62,10 @@ class nmap_scan(object):
    
 if __name__ == "__main__":
     nm = nmap_scan()
-    ip = "47.95.4.158"
-    l = nm.scan(ip)
-    print(l)
+    with open("ip.txt","r") as f:
+        ip_list = f.readlines()
+        nm.scan_ip(ip_list)
+    nm.conn.commit()
+    nm.conn.close()
+
 
