@@ -13,15 +13,14 @@ class nmap_scan(object):
         self.cur = self.conn.cursor()
         self.sql ="CREATE TABLE IF NOT EXISTS scan(host TEXT PRIMARY KEY, port TEXT,vendor TEXT, os TEXT, version TEXT)"
         self.cur.execute(self.sql)
+        self.nm =nmap.PortScanner()
 
         
     def scan(self,ip_queue,scan_queue):
-        self.lock.acquire()
         ip = ip_queue.get()
-        self.lock.release()
         l = []
         arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
-        output = nmap.PortScanner().scan(hosts=ip, arguments=arg)
+        output = self.nm.scan(hosts=ip, arguments=arg)
 
         try:
             for result in output["scan"].values():
@@ -35,10 +34,10 @@ class nmap_scan(object):
                     os = result["osmatch"][0]["osclass"][0]["osfamily"]
                     version = result["osmatch"][0]["osclass"][0]["osgen"]
                     data = [host,port,vendor,os,version]
-                    self.lock.acquire()
+
                     scan_queue.put(data)
                     scan_queue.task_done()
-                    self.lock.release()
+
         except:
             print("主机down")
 
@@ -66,8 +65,11 @@ class nmap_scan(object):
         sql_thread.start()
 
         ip_thread.join()
+        print("ip_thread.join()")
         ip_queue.join()
+        print("ip_queue.join()")
         scan_queue.join()
+        print("scan_queue.join()")
 
 
         self.conn.commit()
