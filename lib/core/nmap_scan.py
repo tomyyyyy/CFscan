@@ -39,7 +39,7 @@ class nmap_scan(object):
                     scan_queue.task_done()
 
         except:
-            print("主机down")
+            print(ip,"down")
 
 
 
