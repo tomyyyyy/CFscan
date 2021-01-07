@@ -21,15 +21,6 @@ class spider(object):
 
     #cev_setails中按照时间找寻cve的信息
     def vulnerabilities_by_date(self,year):
-        url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
-        res = requests.get(url,headers=self.headers)
-        html = etree.HTML(res.content)
-
-        #获得漏洞页面的链接漏洞总数: 
-        total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')
-        link = html.xpath('//*[@id="pagingb"]/a/@href')
-        page_link = ["https://www.cvedetails.com" + i for i in link]
- 
         #创建表格
         cur = self.conn.cursor()
         #cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version
@@ -42,7 +33,7 @@ class spider(object):
         cve_info_queue = Queue(maxsize=self.thread_num*3)
 
         #生成cve详情url
-        producer_thread = threading.Thread(target=self.producer, args=(url_queue, page_link))
+        producer_thread = threading.Thread(target=self.producer, args=(url_queue, ))
         producer_thread.setDaemon(True)
         producer_thread.start()
 
@@ -96,10 +87,7 @@ class spider(object):
     #提取cve信息
     def cve_data(self, url_queue, cve_info_queue):
         while True:
-            try:
-                url = url_queue.get(block=False,timeout=3)
-            except:
-                break
+            url = url_queue.get(block=False,timeout=3)
             html = self.tyr_request(url, headers=self.headers)
             #cve编号 
             cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
@@ -134,23 +122,30 @@ class spider(object):
             cve_info_queue.put(cve_info,timeout=3)
 
 
-                # #控制打印进度，防止不同进程同时打印
-                # self.lock.acquire()
-                # print(cve_info)
-                # self.lock.release()
+            # #控制打印进度，防止不同进程同时打印
+            # self.lock.acquire()
+            # print(cve_info)
+            # self.lock.release()
 
 
     #产生cve详情url
-    def producer(self, url_queue, page_link):  # 生产者
-        for url in tqdm(page_link):
-            html = self.tyr_request(url,headers=self.headers)
-            for i in range(1, 51):
-                try:
-                    url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
-                    cve_url = "https://www.cvedetails.com" + url
-                except:
-                    break
-                url_queue.put(cve_url,timeout=3)
+    def producer(self, url_queue):  # 生产者
+        for year in range(1999,2020):
+            url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
+            res = requests.get(url,headers=self.headers)
+            html = etree.HTML(res.content)
+
+            link = html.xpath('//*[@id="pagingb"]/a/@href')
+            page_link = ["https://www.cvedetails.com" + i for i in link]
+            for url in tqdm(page_link):
+                html = self.tyr_request(url,headers=self.headers)
+                for i in range(1, 51):
+                    try:
+                        url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
+                        cve_url = "https://www.cvedetails.com" + url
+                    except:
+                        break
+                    url_queue.put(cve_url,timeout=3)
 
 
 if __name__ == "__main__":
