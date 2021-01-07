@@ -12,11 +12,12 @@ import sqlite3
 class spider(object):
     def __init__(self):
         self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"}
-        self.thread_num = 10
+        self.thread_num = 20
         self.trytimes = 3
         self.lock = threading.Lock()
         self.conn = sqlite3.connect('cvedetail.db',check_same_thread=False)
         # self.conn.execute('PRAGMA synchronous = OFF')
+
 
     #cev_setails中按照时间找寻cve的信息
     def vulnerabilities_by_date(self,year):
@@ -152,7 +153,7 @@ class spider(object):
 
 if __name__ == "__main__":
     spider = spider()
-    for i in range(2000,2019):
+    for i in range(2004,2019):
         spider.vulnerabilities_by_date(i)
     spider.conn.close()
 

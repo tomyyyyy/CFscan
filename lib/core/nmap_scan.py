@@ -5,13 +5,15 @@ from queue import Queue
 import sqlite3
 
 class nmap_scan(object):
-    def __init__(self):
+    def __init__(self,file):
+        self.file = file
         self.thread_num = 10
         self.lock = threading.Lock()
         self.conn = sqlite3.connect('scan.db',check_same_thread=False)
         self.cur = self.conn.cursor()
         self.sql ="CREATE TABLE IF NOT EXISTS scan(host TEXT PRIMARY KEY, port TEXT,vendor TEXT, os TEXT, version TEXT)"
         self.cur.execute(self.sql)
+
         
     def scan(self,ip):
         l = []
@@ -25,30 +27,34 @@ class nmap_scan(object):
                 vendor = result["osmatch"][0]["osclass"][0]["vendor"]
                 os = result["osmatch"][0]["osclass"][0]["osfamily"]
                 version = result["osmatch"][0]["osclass"][0]["osgen"]
-                data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
+                # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
+                data = [host,port,vendor,os,version]
 
-            l.append(data)
-            del result
-            gc.collect()
-        return l
+        return data
 
 
-    def scan_thread(self,host_list):
+    def scan_thread(self):
+        with open(self.file,"r") as f:
+            ip_list = f.readlines()
 
         for i in range(self.thread_num):
-            scan_thread = threading.Thread(target=self.scan_ip, args=(host_list))
+            scan_thread = threading.Thread(target=self.scan_ip, args=(ip_list,))
             scan_thread.setDaemon(True)
             scan_thread.start()
 
         scan_thread.join()
-        print("test")
+        self.conn.commit()
+        self.conn.close()
 
 
     def scan_ip(self,host_list):
         for ip in host_list:
             data = self.scan(ip)
+            if len(data) != 5:
+                break
+            print("=========",data)
             self.lock.acquire()
-            cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
+            self.cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
             self.lock.release()
 
 
@@ -61,11 +67,8 @@ class nmap_scan(object):
 
    
 if __name__ == "__main__":
-    nm = nmap_scan()
-    with open("ip.txt","r") as f:
-        ip_list = f.readlines()
-        nm.scan_ip(ip_list)
-    nm.conn.commit()
-    nm.conn.close()
+    nm = nmap_scan("ip.txt")
+    nm.scan_thread()
+
 
 
