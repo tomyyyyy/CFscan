@@ -15,7 +15,8 @@ class nmap_scan(object):
         self.cur.execute(self.sql)
 
         
-    def scan(self,ip):
+    def scan(self,ip_queue):
+        ip = ip_queue.get()
         l = []
         arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
         output = nmap.PortScanner().scan(hosts=ip, arguments=arg)
@@ -36,38 +37,33 @@ class nmap_scan(object):
         with open(self.file,"r") as f:
             ip_list = f.readlines()
 
+        ip_queue = Queue(maxsize=self.thread_num*3)
         scan_queue = Queue(maxsize=self.thread_num*3)
+
+        ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,))
+
         scan_thread_list = []
         for i in range(self.thread_num):
-            scan_thread = threading.Thread(target=self.scan_ip, args=(ip_list,scan_queue,))
+            scan_thread = threading.Thread(target=self.scan, args=(ip_queue,))
             scan_thread.setDaemon(True)
             scan_thread.start()
-            scan_thread_list.append(scan_thread)
+            # scan_thread_list.append(scan_thread)
 
         sql_thread = threading.Thread(target=self.write_sql, args=(scan_queue,))
 
-        for i in scan_thread_list:
-            i.join()
+        # for i in scan_thread_list:
+        #     i.join()
         scan_queue.join()
+        ip_queue.join()
 
 
         self.conn.commit()
         self.conn.close()
 
-    def scan_ip(self,host_list,scan_queue):
+    def scan_ip(self,host_list,ip_queue):
         for ip in host_list:
-            try:
-                ip = ip.strip()
-                print(ip)
-                data = self.scan(ip)
-                if data is None:
-                    continue
-                print(data)
-                scan_queue.put(data)
-                scan_queue.task_done()
-                
-            except:
-                print("null")
+            ip_queue.put(ip)
+            ip_queue.task_done()
 
 
     def write_sql(self,scan_queue):
