@@ -77,6 +77,7 @@ class nmap_scan(object):
     def write_sql(self,scan_queue):
         while True:
             data = scan_queue.get()
+            data = [str(i) for i in data]
             self.cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
 
 
