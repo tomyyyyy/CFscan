@@ -87,7 +87,7 @@ class spider(object):
     #提取cve信息
     def cve_data(self, url_queue, cve_info_queue):
         while True:
-            url = url_queue.get(block=False,timeout=3)
+            url = url_queue.get()
             html = self.tyr_request(url, headers=self.headers)
             #cve编号 
             cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
