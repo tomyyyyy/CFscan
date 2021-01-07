@@ -44,7 +44,7 @@ class spider(object):
             consumer_thread.start()
 
         #将cve信息存储到表格之中
-        excel_thread = threading.Thread(target=self.write_sql, args=(cve_info_queue, cur, year,))
+        excel_thread = threading.Thread(target=self.write_sql, args=(cve_info_queue, cur,))
         excel_thread.setDaemon(True)
         excel_thread.start()
 
@@ -61,7 +61,7 @@ class spider(object):
 
 
     #将cve信息写入表格,然后删除内存数据
-    def write_sql(self, cve_info_queue, cur, year):
+    def write_sql(self, cve_info_queue, cur,):
         while True:
             cve_info = cve_info_queue.get()
             # print(cve_info)
