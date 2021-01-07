@@ -29,8 +29,9 @@ class nmap_scan(object):
                 version = result["osmatch"][0]["osclass"][0]["osgen"]
                 # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
                 data = [host,port,vendor,os,version]
+                return data
 
-        return data
+
 
 
     def scan_thread(self):
@@ -49,13 +50,14 @@ class nmap_scan(object):
 
     def scan_ip(self,host_list):
         for ip in host_list:
-            data = self.scan(ip)
-            if len(data) != 5:
-                break
-            print("=========",data)
-            self.lock.acquire()
-            self.cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
-            self.lock.release()
+            try:
+                data = self.scan(ip)
+                print("=========",data)
+                self.lock.acquire()
+                self.cur.execute(F"INSERT INTO scan values(?,?,?,?,?)", (tuple(data)))
+                self.lock.release()
+            except:
+                print("error")
 
 
     def get_open_port(self,tcp_info):
