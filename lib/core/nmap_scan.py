@@ -15,7 +15,7 @@ class nmap_scan(object):
         self.cur.execute(self.sql)
 
         
-    def scan(self,ip_queue):
+    def scan(self,ip_queue,scan_queue):
         ip = ip_queue.get()
         l = []
         arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
@@ -30,7 +30,9 @@ class nmap_scan(object):
                 version = result["osmatch"][0]["osclass"][0]["osgen"]
                 # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
                 data = [host,port,vendor,os,version]
-                return data
+                scan_queue.put(data)
+                scan_queue.task_done()
+
 
 
     def scan_thread(self):
@@ -40,7 +42,7 @@ class nmap_scan(object):
         ip_queue = Queue(maxsize=self.thread_num*3)
         scan_queue = Queue(maxsize=self.thread_num*3)
 
-        ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,))
+        ip_thread = threading.Thread(target=self.scan_ip, args=(ip_list,ip_queue,scan_queue,))
         ip_thread.setDaemon(True)
         ip_thread.start()
 
@@ -49,7 +51,6 @@ class nmap_scan(object):
             scan_thread = threading.Thread(target=self.scan, args=(ip_queue,))
             scan_thread.setDaemon(True)
             scan_thread.start()
-
 
         sql_thread = threading.Thread(target=self.write_sql, args=(scan_queue,))
         sql_thread.setDaemon(True)
