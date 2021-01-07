@@ -21,17 +21,20 @@ class nmap_scan(object):
         arg = "-Pn -n --min-hostgroup 1024 --min-parallelism 1024 -F -T4  -sS -v -O"
         output = nmap.PortScanner().scan(hosts=ip, arguments=arg)
 
-        for result in output["scan"].values():
-            if result["status"]["state"] == "up":
-                host = result["addresses"]["ipv4"]
-                port = self.get_open_port(result["tcp"])
-                vendor = result["osmatch"][0]["osclass"][0]["vendor"]
-                os = result["osmatch"][0]["osclass"][0]["osfamily"]
-                version = result["osmatch"][0]["osclass"][0]["osgen"]
-                # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
-                data = [host,port,vendor,os,version]
-                scan_queue.put(data)
-                scan_queue.task_done()
+        try:
+            for result in output["scan"].values():
+                if result["status"]["state"] == "up":
+                    host = result["addresses"]["ipv4"]
+                    port = self.get_open_port(result["tcp"])
+                    vendor = result["osmatch"][0]["osclass"][0]["vendor"]
+                    os = result["osmatch"][0]["osclass"][0]["osfamily"]
+                    version = result["osmatch"][0]["osclass"][0]["osgen"]
+                    # data = {"host":host, "port":port, "vendor":vendor, "os":os, "version":version}
+                    data = [host,port,vendor,os,version]
+                    scan_queue.put(data)
+                    scan_queue.task_done()
+        except:
+            pass
 
 
 
