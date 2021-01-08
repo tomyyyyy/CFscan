@@ -148,7 +148,7 @@ class spider(object):
                             cve_url = "https://www.cvedetails.com" + url
                         except:
                             break
-                        url_queue.put(cve_url,timeout=3)
+                        url_queue.put(cve_url,timeout=5)
                         bar.update()
 
             print(F"{year}年{total_vuln}个cve信息全部写入成功")
