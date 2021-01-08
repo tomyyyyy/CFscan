@@ -119,7 +119,7 @@ class spider(object):
             cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
             url_queue.task_done()
-            cve_info_queue.put(cve_info,timeout=3)
+            cve_info_queue.put(cve_info,timeout=5)
 
 
             # #控制打印进度，防止不同进程同时打印
