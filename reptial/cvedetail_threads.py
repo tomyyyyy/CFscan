@@ -73,10 +73,10 @@ class spider(object):
             gc.collect()
 
     #重试函数,防止连接异常
-    def tyr_request(self, url, headers):
+    def tyr_request(self, url, headers,timeout):
         for i in range(self.trytimes):
             try:
-                res = requests.get(url, headers=headers)
+                res = requests.get(url, headers=headers,timeout=timeout)
                 if res.status_code == 200:
                     return etree.HTML(res.content)
             except:
