@@ -41,7 +41,8 @@ class nmap_scan(object):
                         scan_queue.task_done()
 
             except:
-                print(ip,"down")
+                # print(ip,"down")
+                pass
 
 
     #多线程扫描ip
