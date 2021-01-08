@@ -139,7 +139,7 @@ class spider(object):
             total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')
             link = html.xpath('//*[@id="pagingb"]/a/@href')
             page_link = ["https://www.cvedetails.com" + i for i in link]
-            with tqdm(total=total_vuln) as bar:
+            with tqdm(total=int(total_vuln)) as bar:
                 for url in tqdm(page_link):
                     html = self.tyr_request(url,headers=self.headers)
                     for i in range(1, 51):
@@ -149,7 +149,7 @@ class spider(object):
                         except:
                             break
                         url_queue.put(cve_url,timeout=3)
-                        bar.update(1)
+                        bar.update()
 
             print(F"{year}年cve信息全部写入成功")
 
