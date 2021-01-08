@@ -135,17 +135,21 @@ class spider(object):
             res = requests.get(url,headers=self.headers)
             html = etree.HTML(res.content)
 
+            #获得漏洞页面的链接漏洞总数: 
+            total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')
             link = html.xpath('//*[@id="pagingb"]/a/@href')
             page_link = ["https://www.cvedetails.com" + i for i in link]
-            for url in tqdm(page_link):
-                html = self.tyr_request(url,headers=self.headers)
-                for i in range(1, 51):
-                    try:
-                        url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
-                        cve_url = "https://www.cvedetails.com" + url
-                    except:
-                        break
-                    url_queue.put(cve_url,timeout=3)
+            with tqdm(total=total_vuln) as bar:
+                for url in tqdm(page_link):
+                    html = self.tyr_request(url,headers=self.headers)
+                    for i in range(1, 51):
+                        try:
+                            url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
+                            cve_url = "https://www.cvedetails.com" + url
+                        except:
+                            break
+                        url_queue.put(cve_url,timeout=3)
+                        bar.update(1)
 
             print(F"{year}年cve信息全部写入成功")
 
