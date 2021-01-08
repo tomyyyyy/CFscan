@@ -119,7 +119,8 @@ class spider(object):
 
                 cve_info_queue.put(cve_info,timeout=5)
                     
-        loop = asyncio.get_event_loop()
+        loop =  asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         loop.run_until_complete(main())
 
 
