@@ -32,7 +32,6 @@ class spider(object):
 
 
         #设置两个队列
-        url_queue = Queue(maxsize=self.thread_num*3)
         cve_info_queue = Queue(maxsize=self.thread_num*3)
 
         #生成cve详情url
@@ -48,7 +47,7 @@ class spider(object):
         #控制线程进度，确定能够生产完毕
         producer_thread.join()
         cve_info_queue.join()
-        # excel_thread.join()
+
 
         self.conn.commit()
         self.conn.close()
@@ -87,38 +86,38 @@ class spider(object):
                 return await etree.HTML(response.content)
 
         async def main():
-                async with aiohttp.ClientSession() as session:
-                    html = await fetch(session, url)
-                     #cve编号 
-                    cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
-                    #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
-                    try:
-                        cve_vendor = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[3]/a/text()')[0]
-                    except:
-                        cve_vendor = " "
-                    #产品  //*[@id="vulnprodstable"]/tbody/tr[2]/td[4]/a
-                    try:
-                        cve_produce = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[4]/a/text()')[0]
-                    except:
-                        cve_produce = " "
-                    #版本 //*[@id="vulnprodstable"]/tbody/tr[2]/td[5]
-                    try:
-                        cve_produce_version = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[5]')[0].text.strip()
-                    except:
-                        cve_produce_version = " "
-                    
-                    #cve漏洞类型 
-                    try:
-                        cve_type = html.xpath('//*[@id="cvssscorestable"]/tr[8]/td/span')[0].text
-                    except:
-                        cve_type = " "
-                    #cve威胁等级
-                    cve_score = html.xpath('//*[@id="cvssscorestable"]/tr[1]/td/div')[0].text
-                    #cve获得的权限
-                    cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
-                    cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
+            async with aiohttp.ClientSession() as session:
+                html = await fetch(session, url)
+                    #cve编号 
+                cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
+                #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
+                try:
+                    cve_vendor = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[3]/a/text()')[0]
+                except:
+                    cve_vendor = " "
+                #产品  //*[@id="vulnprodstable"]/tbody/tr[2]/td[4]/a
+                try:
+                    cve_produce = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[4]/a/text()')[0]
+                except:
+                    cve_produce = " "
+                #版本 //*[@id="vulnprodstable"]/tbody/tr[2]/td[5]
+                try:
+                    cve_produce_version = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[5]')[0].text.strip()
+                except:
+                    cve_produce_version = " "
+                
+                #cve漏洞类型 
+                try:
+                    cve_type = html.xpath('//*[@id="cvssscorestable"]/tr[8]/td/span')[0].text
+                except:
+                    cve_type = " "
+                #cve威胁等级
+                cve_score = html.xpath('//*[@id="cvssscorestable"]/tr[1]/td/div')[0].text
+                #cve获得的权限
+                cve_authority = html.xpath('//*[@id="cvssscorestable"]/tr[7]/td/span')[0].text
+                cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
-                    cve_info_queue.put(cve_info,timeout=5)
+                cve_info_queue.put(cve_info,timeout=5)
                     
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
