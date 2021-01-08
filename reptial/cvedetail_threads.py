@@ -90,7 +90,10 @@ class spider(object):
             url = url_queue.get()
             html = self.tyr_request(url, headers=self.headers,timeout=3)
             #cve编号 
-            cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
+            try:
+                cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
+            except:
+                continue
             #供应商 //*[@id="vulnprodstable"]/tbody/tr[2]/td[3]/a
             try:
                 cve_vendor = html.xpath('//*[@id="vulnprodstable"]/tr[2]/td[3]/a/text()')[0]
