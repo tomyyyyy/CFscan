@@ -136,7 +136,7 @@ class spider(object):
             html = etree.HTML(res.content)
 
             #获得漏洞页面的链接漏洞总数: 
-            total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')
+            total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')[0]
             link = html.xpath('//*[@id="pagingb"]/a/@href')
             page_link = ["https://www.cvedetails.com" + i for i in link]
             with tqdm(total=int(total_vuln)) as bar:
