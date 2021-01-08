@@ -12,7 +12,7 @@ import sqlite3
 class spider(object):
     def __init__(self):
         self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"}
-        self.thread_num = 20
+        self.thread_num = 30
         self.trytimes = 3
         self.lock = threading.Lock()
         self.conn = sqlite3.connect('cvedetail.db',check_same_thread=False)
