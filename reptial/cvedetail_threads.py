@@ -151,7 +151,7 @@ class spider(object):
                         url_queue.put(cve_url,timeout=3)
                         bar.update()
 
-            print(F"{year}年cve信息全部写入成功")
+            print(F"{year}年{total_vuln}个cve信息全部写入成功")
 
 
 if __name__ == "__main__":
