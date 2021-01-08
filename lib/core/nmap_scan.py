@@ -2,6 +2,7 @@ import gc
 import nmap
 import threading
 from queue import Queue
+from tqdm import tqdm
 import sqlite3
 
 class nmap_scan(object):
@@ -15,7 +16,7 @@ class nmap_scan(object):
         self.cur.execute(self.sql)
         self.nm =nmap.PortScanner()
 
-        
+    #扫描ip
     def scan(self,ip_queue,scan_queue):
         while True:
             ip = ip_queue.get()
@@ -43,7 +44,7 @@ class nmap_scan(object):
                 print(ip,"down")
 
 
-
+    #多线程扫描ip
     def scan_thread(self):
         with open(self.file,"r") as f:
             ip_list = f.readlines()
@@ -67,23 +68,22 @@ class nmap_scan(object):
         sql_thread.start()
 
         ip_thread.join()
-        print("ip_thread.join()")
         ip_queue.join()
-        print("ip_queue.join()")
         scan_queue.join()
-        print("scan_queue.join()")
 
 
         self.conn.commit()
         self.conn.close()
 
+    #将ip放入队列中
     def scan_ip(self,host_list,ip_queue):
-        for ip in host_list:
+        for ip in tqdm(host_list):
             ip = str(ip).strip()
             ip_queue.put(ip,block=True)
             ip_queue.task_done()
 
 
+    #处理队列中的扫描结果
     def write_sql(self,scan_queue):
         while True:
             try:
