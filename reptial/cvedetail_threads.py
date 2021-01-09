@@ -86,9 +86,10 @@ class spider(object):
     #提取cve信息
     def cve_data(self, url_queue, cve_info_queue):
         while True:
-            url = url_queue.get()
-            if url == None:
-                break
+            try:
+                url = url_queue.get(False)
+            except Queue.Empty:
+                continue
             html = self.tyr_request(url, headers=self.headers,timeout=3)
             #cve编号 
             try:
@@ -158,8 +159,6 @@ class spider(object):
             print(F"{year}年{total_vuln}个cve信息全部写入成功")
             total_num += int(total_vuln)
 
-        for i in range(self.thread_num):
-            url_queue.put(None,timeout=5)
         print("================================")
         print(F"总共写入{total_num}个cve信息")
 
