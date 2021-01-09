@@ -20,7 +20,6 @@ class spider(object):
         self.session = requests.Session()
 
 
-
     #cev_setails中按照时间找寻cve的信息
     def vulnerabilities_by_date(self):
         #创建表格
@@ -53,9 +52,7 @@ class spider(object):
         #控制线程进度，确定能够生产完毕
         producer_thread.join()
         url_queue.join()
-        # print(url_queue.qsize())
         cve_info_queue.join()
-        # print(cve_info_queue.qsize())
 
         self.conn.commit()
         self.conn.close()
@@ -137,7 +134,7 @@ class spider(object):
     def producer(self, url_queue):  # 生产者
         for year in range(1999,2020):
             url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
-            html = self.tyr_request(url,headers=self.headers,timeout=5)
+            html = self.tyr_request(url,headers=self.headers,timeout=None)
            
             #获得漏洞页面的链接漏洞总数: 
             total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')[0]
