@@ -18,7 +18,7 @@ class spider(object):
         self.conn = sqlite3.connect('cvedetail.db',check_same_thread=False)
         self.conn.execute('PRAGMA synchronous = OFF')
         self.session = requests.Session()
-        self.req = self.session.get('https://www.cvedetails.com')
+
 
 
     #cev_setails中按照时间找寻cve的信息
@@ -78,7 +78,7 @@ class spider(object):
     def tyr_request(self, url, headers,timeout):
         for i in range(self.trytimes):
             try:
-                res = self.req.get(url, headers=headers,timeout=timeout)
+                res = self.session.get(url, headers=headers,timeout=timeout)
                 if res.status_code == 200:
                     return etree.HTML(res.content)
             except:
