@@ -89,7 +89,7 @@ class spider(object):
             url = url_queue.get()
             if url == None:
                 break
-            html = self.tyr_request(url, headers=self.headers,timeout=2)
+            html = self.tyr_request(url, headers=self.headers,timeout=3)
             #cve编号 
             try:
                 cve_id = html.xpath('//*[@id="cvedetails"]/h1/a/text()')[0]
