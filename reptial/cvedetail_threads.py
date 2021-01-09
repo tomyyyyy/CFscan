@@ -135,7 +135,7 @@ class spider(object):
     #产生cve详情url
     def producer(self, url_queue):  # 生产者
         total_num = 0
-        for year in range(1999,2005):
+        for year in range(1999,2003):
             url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
             html = self.tyr_request(url,headers=self.headers,timeout=None)
            
