@@ -156,7 +156,7 @@ class spider(object):
                         bar.update()
 
             print(F"{year}年{total_vuln}个cve信息全部写入成功")
-            total_num += total_vuln
+            total_num += int(total_vuln)
 
         for i in range(self.thread_num):
             url_queue.put(None,timeout=5)
