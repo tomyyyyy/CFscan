@@ -86,7 +86,10 @@ class spider(object):
     #提取cve信息
     def cve_data(self, url_queue, cve_info_queue):
         while True:
-            url = url_queue.get()
+            try:
+                url = url_queue.get(False)
+            except Queue.empty:
+                continue
             html = self.tyr_request(url, headers=self.headers,timeout=3)
             #cve编号 
             try:
