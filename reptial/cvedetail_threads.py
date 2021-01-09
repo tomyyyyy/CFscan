@@ -88,7 +88,7 @@ class spider(object):
         while True:
             try:
                 url = url_queue.get(False)
-            except Queue.Empty:
+            except:
                 continue
             html = self.tyr_request(url, headers=self.headers,timeout=3)
             #cve编号 
