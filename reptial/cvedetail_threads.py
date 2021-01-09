@@ -143,7 +143,7 @@ class spider(object):
             page_link = ["https://www.cvedetails.com" + i for i in link]
             with tqdm(total=int(total_vuln)) as bar:
                 for url in page_link:
-                    html = self.tyr_request(url,headers=self.headers,timeout=5)
+                    html = self.tyr_request(url,headers=self.headers,timeout=None)
                     for i in range(1, 51):
                         try:
                             url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
