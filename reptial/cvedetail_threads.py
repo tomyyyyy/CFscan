@@ -66,7 +66,7 @@ class spider(object):
             # print(cve_info)
             cve_info = [str(i) for i in cve_info]
             cur.execute(F"INSERT INTO cve values(?,?,?,?,?,?,?)", (tuple(cve_info)))
-            
+
             cve_info_queue.task_done()
             del cve_info
             gc.collect()
@@ -128,13 +128,6 @@ class spider(object):
             cve_info_queue.put(cve_info,timeout=5)
             self.lock.release()
 
-
-            # #控制打印进度，防止不同进程同时打印
-            # self.lock.acquire()
-            # print(cve_info)
-            # self.lock.release()
-
-
     #产生cve详情url
     def producer(self, url_queue):  # 生产者
         total_num = 0
@@ -148,7 +141,7 @@ class spider(object):
             page_link = ["https://www.cvedetails.com" + i for i in link]
             with tqdm(total=int(total_vuln)) as bar:
                 for url in page_link:
-                    html = self.tyr_request(url,headers=self.headers,timeout=None)
+                    html = self.tyr_request(url,headers=self.headers,timeout=5)
                     for i in range(1, 51):
                         try:
                             url = html.xpath('//*[@id="vulnslisttable"]/tr['+ str(2*i) + ']/td[2]/a/@href')[0]
