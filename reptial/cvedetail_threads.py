@@ -137,9 +137,8 @@ class spider(object):
     def producer(self, url_queue):  # 生产者
         for year in range(1999,2020):
             url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
-            res = self.tyr_request(url,headers=self.headers,timeout=5)
-            html = etree.HTML(res.content)
-
+            html = self.tyr_request(url,headers=self.headers,timeout=5)
+           
             #获得漏洞页面的链接漏洞总数: 
             total_vuln = html.xpath('//*[@id="pagingb"]/b/text()')[0]
             link = html.xpath('//*[@id="pagingb"]/a/@href')
