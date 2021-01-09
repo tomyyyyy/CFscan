@@ -17,6 +17,8 @@ class spider(object):
         self.lock = threading.Lock()
         self.conn = sqlite3.connect('cvedetail.db',check_same_thread=False)
         self.conn.execute('PRAGMA synchronous = OFF')
+        self.session = requests.Session()
+        self.req = self.session.get('https://www.cvedetails.com')
 
 
     #cev_setails中按照时间找寻cve的信息
@@ -76,7 +78,7 @@ class spider(object):
     def tyr_request(self, url, headers,timeout):
         for i in range(self.trytimes):
             try:
-                res = requests.get(url, headers=headers,timeout=timeout)
+                res = self.req.get(url, headers=headers,timeout=timeout)
                 if res.status_code == 200:
                     return etree.HTML(res.content)
             except:
@@ -135,7 +137,7 @@ class spider(object):
     def producer(self, url_queue):  # 生产者
         for year in range(1999,2020):
             url = F"https://www.cvedetails.com/vulnerability-list/year-{year}/vulnerabilities.html"
-            res = requests.get(url,headers=self.headers)
+            res = self.tyr_request(url,headers=self.headers,timeout=5)
             html = etree.HTML(res.content)
 
             #获得漏洞页面的链接漏洞总数: 
