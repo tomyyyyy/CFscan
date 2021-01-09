@@ -86,7 +86,9 @@ class spider(object):
     #提取cve信息
     def cve_data(self, url_queue, cve_info_queue):
         while True:
+            self.lock.acquire()
             url = url_queue.get()
+            self.lock.release()
             html = self.tyr_request(url, headers=self.headers,timeout=3)
             #cve编号 
             try:
@@ -121,7 +123,10 @@ class spider(object):
             cve_info = [cve_id, cve_type, cve_score, cve_authority, cve_vendor, cve_produce, cve_produce_version]
 
             url_queue.task_done()
+
+            self.lock.acquire()
             cve_info_queue.put(cve_info,timeout=5)
+            self.lock.release()
 
 
             # #控制打印进度，防止不同进程同时打印
